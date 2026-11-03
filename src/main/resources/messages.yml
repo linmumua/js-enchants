@@ -1,0 +1,45 @@
+# JsEnchants 玩家可见文案。所有发送给玩家的文本都来自这里。
+# 格式为 MiniMessage（与 Lore 展示同一套语法），占位符写作 {name}，发送前由插件替换。
+# 改动后可用 /jse reload 立即生效；文件写错时插件会保留上一版文案并在控制台告警。
+
+command:
+  no-permission: "<red>你没有权限使用该命令。"
+  usage: "<gold>用法: /{label} <reload|list|give>"
+  unknown-subcommand: "<red>未知子命令: {input}"
+
+  list:
+    none: "无"
+    scripts: "<gold>脚本 ({count}): <white>{ids}"
+    enchants: "<gold>附魔 ({count}): <white>{entries}"
+    enchant-entry: "{id}({trigger} Lv1-{max})"
+
+  reload:
+    # 四步（配置、文案、脚本、附魔）全部成功、且附魔表确实发布才会发送这一条。
+    done: "<green>已重载：脚本 {scripts} 个，附魔 {enchants} 个。"
+    # 紧跟 done 发送。附魔定义重载只影响插件自己的判定，附魔台读的是原版注册表，
+    # 需要服务端 /reload 或重启才会重新读数据包——不说这句，服主会以为附魔台坏了。
+    datapack-hint: "<gray>提示：要让新的附魔出现在<white>附魔台<gray>里，还需要执行 <white>/reload<gray> 或重启服务器（数据包只在世界加载时读取）。"
+    # 有任何一步失败时发送这一条；附魔侧另有更具体的一行，所以这里只报脚本数量。
+    partial: "<yellow>重载未全部成功：脚本成功 {scripts_loaded} 个、失败 {scripts_failed} 个，附魔侧见上方提示。"
+    # 插件正在停用，重载根本没排队——不说清楚的话玩家只会觉得命令没反应。
+    unavailable: "<red>插件正在停用，重载未执行。"
+    config-failed: "<red>config.yml 载入失败，已保留上一版设置（详情见控制台）。"
+    messages-failed: "<red>messages.yml 载入失败，已保留上一版文案（详情见控制台）。"
+    script-directory-missing: "<red>脚本目录不可用，已保留上一版脚本（详情见控制台）。"
+    enchant-directory-missing: "<red>附魔目录不可用，已保留上一版定义（详情见控制台）。"
+    script-failures: "<red>脚本加载失败 {failed} 个: <white>{details}"
+    # 附魔定义是整批原子发布：一个文件不合格就整批不发布，因此分「沿用旧表」和「空表」两种说法。
+    enchant-rejected: "<red>附魔定义整批未发布，仍使用上一版 {kept} 个: <white>{details}"
+    enchant-rejected-empty: "<red>附魔定义整批未发布，当前没有任何可用定义: <white>{details}"
+    enchant-failures: "<red>附魔定义加载失败 {failed} 个: <white>{details}"
+
+  give:
+    usage: "<red>用法: /{label} give <玩家> <附魔id> [等级]"
+    player-missing: "<red>找不到在线玩家: {player}"
+    enchant-missing: "<red>找不到附魔: {id}"
+    level-invalid: "<red>等级必须是数字: {input}"
+    no-item: "<red>{player} 主手没有物品。"
+    unsupported: "<red>该物品不支持附魔 {id}。"
+    done: "<green>已给 {player} 的 {item} 附加 {id} Lv{level}。"
+    # 目标实体的调度没能执行（离线/实体已退休/区域调度被拒）时发送这一条，不会再重试。
+    not-executed: "<red>附魔未执行：{player} 已离线或所在区域暂不可用。"

@@ -1,0 +1,39 @@
+# 冻结：命中后让目标进入细雪式的寒冷状态，并附加挖掘疲劳。
+#
+# 「寒冷」在 26.3 不是药水效果（PotionEffectType 里没有对应条目），
+# 原版的寒冷由实体的 freezeTicks 状态承载，因此脚本用 setFreezeTicks 写到上限，
+# 表现为屏幕结霜、动作迟缓与持续冻伤，与细雪里一致。
+id: frostbite
+display: "冻结"
+max-level: 1
+rarity: uncommon
+
+items:
+  - WOODEN_SWORD
+  - STONE_SWORD
+  - COPPER_SWORD
+  - IRON_SWORD
+  - GOLDEN_SWORD
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+trigger: ATTACK
+
+# 无冷却：寒冷是每次命中都该有的压制感。
+cooldown-ms: 0
+
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 寒冷强度（freezeTicks）。140 约等于细雪里的上限，表现为结霜 + 冻伤。
+  # 目标自身上限更高时不会被压回去，脚本取两者较大值。
+  freeze-ticks: 140
+  # 挖掘疲劳时长（tick）；写 0 关掉这个附加效果。
+  fatigue-ticks: 60
+  fatigue-effect: MINING_FATIGUE
+
+script: frostbite.js
+enabled: true

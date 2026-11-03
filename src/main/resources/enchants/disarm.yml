@@ -1,0 +1,40 @@
+# 缴械：概率打掉目标的主手物品。
+#
+# 两种结果各占一半：与背包里随机一格交换，或直接把主手物品丢到地上。
+# 生物没有玩家背包，只有装备槽，因此对非玩家只能走「丢弃」这一条。
+#
+# 概率说明：框架概率是线性公式，写不出 5/8/10 这种非等差序列。
+# 这里取 base 0.05、per-level 0.025，实际为 5% / 7.5% / 10%——1 级与 3 级精确，2 级差 0.5%。
+id: disarm
+display: "缴械"
+max-level: 3
+rarity: rare
+
+items:
+  - WOODEN_SWORD
+  - STONE_SWORD
+  - COPPER_SWORD
+  - IRON_SWORD
+  - GOLDEN_SWORD
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+trigger: ATTACK
+
+# 1000ms 冷却：避免一次连击把对方整条快捷栏打散。
+cooldown-ms: 1000
+
+chance:
+  base: 0.05
+  per-level: 0.025
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 主手物品「直接掉到地上」的概率；剩下的概率是与背包随机一格交换。
+  # 写 1.0 就是每次都掉落，写 0.0 就是每次都交换。
+  drop-chance: 0.5
+  # 交换时只在前 N 格里挑。再往后是护甲与副手槽，把护甲换到手上会变成穿不回去的怪东西。
+  storage-slots: 36
+
+script: disarm.js
+enabled: true

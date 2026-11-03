@@ -1,0 +1,38 @@
+# 迷失之刃：命中后给目标附加缓慢与反胃。
+#
+# 等级差：1 级只给缓慢 1 秒；2 级加反胃；3 级把两种效果的时长提到 2 秒。
+# 反胃时长与缓慢一致，避免出现"只在 2 级反胃一下"这种读不出来的档位差。
+id: lost_blade
+display: "迷失之刃"
+max-level: 3
+rarity: epic
+
+items:
+  - WOODEN_SWORD
+  - STONE_SWORD
+  - COPPER_SWORD
+  - IRON_SWORD
+  - GOLDEN_SWORD
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+trigger: ATTACK
+
+# 无冷却：药水效果本身就是每次命中的反馈，冷却只会让它时有时无。
+cooldown-ms: 0
+
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 每级效果时长（秒）。等级超过列表长度时取最后一项。
+  slowness-seconds: [1, 1, 2]
+  # 从第几级开始追加反胃；写 0 表示每个等级都给。
+  nausea-from-level: 2
+  slowness-effect: SLOWNESS
+  nausea-effect: NAUSEA
+
+script: lost_blade.js
+enabled: true

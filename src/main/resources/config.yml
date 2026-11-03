@@ -1,0 +1,115 @@
+# Lore 展示行模板。{display} 会被替换成附魔名。
+# 等级有两种写法，用哪个（或两个都用）由模板自己决定：
+#   {level} → 阿拉伯数字，如 3
+#   {tier}  → 阶位罗马数字，如 III（1→I … 10→X；超出 1..10 回落成阿拉伯数字）
+# 支持 MiniMessage 格式。
+lore:
+  enabled: true
+  # 旧字段保留作为缺省模板；下面 rarity 缺项时回落到它。
+  # （这一项不强制要求占位符，兼容升级前写下的配置。）
+  format: "<gray>{display} <dark_gray>{tier}"
+  # 按稀有度统一配色：改这里一处即全局生效，不需要逐条改 enchants/*.yml。
+  #
+  # 稀有度来源：yml 里显式写的 rarity，或按 max-level 推导
+  # （1→common，2→uncommon，3→rare，≥4→epic）。
+  # 每一项都必须含 {display}，并且含 {level} 或 {tier} 之一；写错的单项会回落到
+  # 上面的 lore.format 并记一条 SEVERE 日志（不会拒绝整份配置）。
+  # 删掉某一项则该项回落到上面的 lore.format。
+  #
+  # 注意：附魔 yml 里的 display 不要再自带 <gold> 之类的颜色标签——MiniMessage 里
+  # 内层标签优先，写死的颜色会盖掉这里的调色板，那条附魔就「不跟着统一配色走」了。
+  # 颜色只在这一处定义。
+  rarity:
+    common:   "<gray>{display} <dark_gray>{tier}"
+    uncommon: "<green>{display} <dark_green>{tier}"
+    rare:     "<aqua>{display} <dark_aqua>{tier}"
+    epic:     "<light_purple>{display} <dark_purple>{tier}"
+  # 过去用过、现在只用于「识别并清理旧物品 Lore 行」的模板——不参与渲染。
+  #
+  # 为什么需要它：旧物品上的行是靠纯文本完全相等识别的。文本形态一旦改过
+  # （例如等级从数字 3 换成阶位 III），用旧模板渲染出来的行就再也对不上，
+  # 会永久残留在物品上，连 lore_lines 配额都删不掉。
+  # 清理数量仍受 lore_lines 记录的旧行数约束，不会凭这里的模板成片删别人的行。
+  # 服务器里的旧物品都刷新过 Lore 之后，这里可以清空。
+  legacy-formats:
+    # 上一版默认的四档模板（等级写成数字）。
+    - "<gray>{display} <dark_gray>{level}"
+    - "<green>{display} <dark_green>{level}"
+    - "<aqua>{display} <dark_aqua>{level}"
+    - "<light_purple>{display} <dark_purple>{level}"
+
+# 脚本沙箱：脚本能访问哪些第三方包。
+#
+# 这里是「整体替换」而不是追加——放开了什么必须一眼能读出来。
+# 想用 CraftEngine / PacketEvents 的 API，就在下面加上它们的包前缀。
+# 注意：反射、文件与网络 IO、Runtime、Thread、Class 这些永远拒绝，
+# 写进这个列表也不会生效。
+scripts:
+  allowed-packages:
+    - "org.bukkit."
+    - "io.papermc.paper."
+    - "net.kyori."
+    - "com.linmumua.jsenchant."
+    # CraftEngine 自定义方块识别（vein_miner 的 CE 白名单写法依赖它）。
+    # 未安装 CraftEngine 时这一行没有任何副作用：脚本对 CE 的调用会降级成「不是自定义方块」，
+    # 连锁采集照常用原版方块名单工作。
+    # 只放开包前缀还不够——类还必须在本插件的类加载器里可见，所以 plugin.yml 的
+    # softdepend 里也声明了 CraftEngine；两处要一起改。
+    - "net.momirealms.craftengine."
+    # 协议层单播：packet_notice 示例脚本直接构造 ActionBar 包。
+    # 只放开包前缀不够，还要 plugin.yml 的 softdepend 让这些类在本插件的类加载器里可见。
+    - "com.github.retrooper.packetevents."
+
+# 默认禁止注册的事件（只影响附魔定义里写的自定义事件名）。
+#
+# 这三个是「一旦订阅就会明显拖慢 tick」的等级，需要时从这里删掉即可。
+# 内置短名（ATTACK / DEFEND / MINE / KILL / RIGHT_CLICK / SHOOT / HOVER）
+# 走各自的专用绑定，不受本列表影响。
+events:
+  blocked:
+    - PlayerMoveEvent
+    - BlockPhysicsEvent
+    - PlayerInteractAtEntityEvent
+
+# 原版结构容器的战利品里追加本插件的附魔书。
+#
+# 只覆盖原版容器表（minecraft:chests/ 下的箱子、木桶、矿车箱等）：钓鱼和生物掉落
+# 不在本功能范围内，tables 里写这两类会被判为非法配置（整份配置拒绝加载）。
+# 候选池永远是「当前全部启用的附魔」：先按 chance 抽一次「这次到底出不出书」，
+# 再从候选里等概率选一本、等级取 1..max-level，所以附魔数量增加不会让掉书变勤。
+loot-books:
+  enabled: true
+  # 每次原版战利品表填充的出书概率（双箱等成对容器的两侧分别计算），0 ~ 1。
+  # 0 表示不掉，1 表示必掉。LootGenerateEvent 按填充次数触发，不是每个逻辑容器一次。
+  chance: 0.10
+  # 允许注入的战利品表：精确 key，或以 * 结尾的通配。
+  tables:
+    - "minecraft:chests/*"
+  # 铁砧上应用一本附魔书扣的经验等级。
+  # 上限 39：原版铁砧在总花费达到 40 级时直接拒绝合成。
+  anvil-level-cost: 1
+
+# 把启用的附魔注册进原版附魔表，让附魔台也能刷到。
+#
+# 实现方式是世界数据包：写到 <世界目录>/datapacks/jsenchants/
+# （pack.mcmeta + data/jsenchants/enchantment/<id>.json + 追加
+#  minecraft:in_enchanting_table 这个 tag）。
+# 数据包只在世界加载时生效，所以首次生成后需要重启一次（或 /reload），
+# 附魔台才能刷到；在那之前插件自动退化为纯 PDC 存储，物品不会坏。
+# 卸载本插件不会删除已生成的数据包（避免玩家手上物品的附魔定义消失）。
+datapack:
+  enabled: true
+  # 附魔台候选池里的权重，必须 > 0。0 表示该附魔永远抽不到。
+  weight: 10
+  # 附魔台 power 门槛：min-cost 决定「多少书架能开始刷到」，
+  # max-cost 决定「能刷到多高的等级」。
+  # 公式：power = cost + 1 + rand(enchantable/4+1) + rand(enchantable/4+1)，再乘 1±0.15 抖动；
+  # cost 取自书架数（0 架约 1~8，15 架约 15~30）。
+  # 下面这组默认值保证：1 级在低书架就能命中，15 书架能走到高等级。
+  # 数值写错的症状是「台面有价格、点了没反应」。
+  min-cost: { base: 1, per-level: 11 }
+  max-cost: { base: 21, per-level: 11 }
+  # 铁砧上的附魔花费系数，必须 >= 1。
+  anvil-cost: 1
+
+debug: false

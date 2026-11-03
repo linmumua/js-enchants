@@ -1,0 +1,56 @@
+# 自动熔炼：挖到的方块直接产出熔炉冶炼后的成品。
+# 触发物品从主手读取（框架约束），因此必须是镐。
+id: auto_smelt
+display: "自动熔炼"
+max-level: 1
+rarity: common
+
+items:
+  - WOODEN_PICKAXE
+  - STONE_PICKAXE
+  - COPPER_PICKAXE
+  - IRON_PICKAXE
+  - GOLDEN_PICKAXE
+  - DIAMOND_PICKAXE
+  - NETHERITE_PICKAXE
+
+trigger: MINE
+
+# 无冷却：每次挖掘都应该生效，冷却只会让部分方块漏熔。
+cooldown-ms: 0
+
+# 100% 触发：这是确定性转换，不掷概率。
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 方块 → 产物 的映射，每条写成 "源方块:产物物品"。
+  # 冒号在 YAML 里是映射符号，所以整条必须加引号，否则会被截成半截。
+  # 想让某个方块也能熔炼，在下面加一行即可；CE 自定义方块请用它自己的产物规则。
+  smelt:
+    - "IRON_ORE:IRON_INGOT"
+    - "DEEPSLATE_IRON_ORE:IRON_INGOT"
+    - "GOLD_ORE:GOLD_INGOT"
+    - "DEEPSLATE_GOLD_ORE:GOLD_INGOT"
+    - "COPPER_ORE:COPPER_INGOT"
+    - "DEEPSLATE_COPPER_ORE:COPPER_INGOT"
+    - "COBBLESTONE:STONE"
+    - "STONE:SMOOTH_STONE"
+    - "SAND:GLASS"
+    - "RED_SAND:GLASS"
+    - "CLAY:TERRACOTTA"
+    - "CACTUS:GREEN_DYE"
+    - "WET_SPONGE:SPONGE"
+    - "SANDSTONE:SMOOTH_SANDSTONE"
+    - "RED_SANDSTONE:SMOOTH_RED_SANDSTONE"
+    - "ANCIENT_DEBRIS:NETHERITE_SCRAP"
+    - "NETHERRACK:NETHER_BRICK"
+    - "QUARTZ_BLOCK:SMOOTH_QUARTZ"
+    - "SEA_PICKLE:LIME_DYE"
+    - "KELP:DRIED_KELP"
+
+# 对应 scripts/ 目录下的脚本名。
+script: auto_smelt.js
+enabled: true

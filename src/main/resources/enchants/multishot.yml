@@ -1,0 +1,33 @@
+# 分裂箭：射箭时额外射出两支带角度偏移的箭，同原版多重箭。
+#
+# 触发时机是 SHOOT（出膛那一刻），这是框架唯一能拿到投射物的时机；
+# 因此复制必须发生在箭离弦的瞬间，而不是命中之后。
+id: multishot
+display: "分裂箭"
+max-level: 1
+rarity: uncommon
+
+# 弓与弩都支持：两者都触发 EntityShootBowEvent。
+items:
+  - BOW
+  - CROSSBOW
+
+trigger: SHOOT
+
+# 无冷却：射击本身受弹药与拉弓节奏限制。
+cooldown-ms: 0
+
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 额外箭矢的水平偏转角（度）。正负成对出现才是原版那种扇形；
+  # 想要三支就写 [0, -10, 10]，想要一支斜射就写 [-8]。
+  spread-degrees: [-10, 10]
+  # 额外箭矢的初速相对原箭的比例；1.0 表示完全继承原速。
+  speed-ratio: 1.0
+
+script: multishot.js
+enabled: true

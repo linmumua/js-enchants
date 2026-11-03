@@ -1,0 +1,110 @@
+# 连锁采集：挖掉一块矿石/原木后，沿相连的同类方块继续开采。
+# 触发物品从主手读取（框架约束），因此必须是镐。
+id: vein_miner
+display: "连锁采集"
+max-level: 3
+rarity: rare
+
+# 26.x 没有 PICKAXE 这类通名，逐个写具体材质。
+items:
+  - WOODEN_PICKAXE
+  - STONE_PICKAXE
+  - COPPER_PICKAXE
+  - IRON_PICKAXE
+  - GOLDEN_PICKAXE
+  - DIAMOND_PICKAXE
+  - NETHERITE_PICKAXE
+
+trigger: MINE
+
+# 250ms 冷却：breakNaturally 会回派 BlockBreakEvent，脚本自身已防重入，
+# 这条冷却只是兜底，防止极短间隔的连续触发把连锁叠起来。
+cooldown-ms: 250
+
+# 100% 触发：连锁是挖掘的固有行为，不掷概率。
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 对应 scripts/ 目录下的脚本名。
+script: vein_miner.js
+enabled: true
+
+# 允许连锁的方块白名单（由 vein_miner.js 自己解释，框架只负责把值送过去）。
+#
+# 三种写法可混用，大小写不敏感：
+#   1) 原版方块名     DIAMOND_ORE（写 minecraft:diamond_ore 等价）
+#   2) 原版方块标签   "#minecraft:ores"、"#logs"（带 # 即按标签处理）
+#   3) CE 自定义方块  "betterend:amber_ore"（含 : 且命名空间不是 minecraft，
+#                     即按 CraftEngine 的方块 id 比对；需要服上装了 CraftEngine）
+#
+# 留空 / 删掉整段 options / 写成空列表 → 回退升级前的行为：
+# 原版 ORES 与 LOGS 标签、远古残骸、萤石、菌柄，外加"除地形方块外都连锁"的兜底。
+#
+# 注意：白名单非空时「只有」列出来的方块能起手连锁，
+# "任意非地形方块都连锁"的兜底不再生效——那是本次刻意关掉的
+# （CE 方块与它的原版载体在 Bukkit 侧分不清，兜底等于一镐清空地形）。
+#
+# ── 为什么逐个列，而不用 #minecraft:ores / #minecraft:logs 两个宽标签 ──────
+# 标签会随版本扩张：以后原版新增一种矿、或者某个数据包往标签里塞了方块，
+# 连锁范围就悄悄变大，而配置看起来一个字没改。逐项列出来的意思是
+# 「只有这些」，改动必须显式发生。
+# 想让某个新方块也能连锁，在下面加一行即可；CE 方块同理。
+options:
+  # ── 触发条件与代价（由 vein_miner.js 解释）────────────────────────
+  # 只有潜行挖掘才起手连锁；站着挖就是普通的一镐。
+  # 悬停预览也跟这条走：站着不显示描边，蹲下才显示。
+  require-sneak: true
+
+  # 连锁破坏 N 块的总耐久 = floor(N × 1.2)：8 块扣 9 点，24 块扣 28 点。
+  # 按倍数算而不是每块单独算，是因为 floor(1.2) = 1——每块单独取整等于没有代价。
+  # 不想要额外消耗就写 1.0；删掉这项时默认 1.2。
+  durability-multiplier: 1.2
+
+  # 每连锁破坏一块额外消耗的饱食度（点）。0.1 表示 10 块掉 1 点饥饿值。
+  # 写 0 关掉这项消耗；删掉这项时默认 0.1。
+  hunger-per-block: 0.1
+
+  # ── 允许连锁的方块白名单 ────────────────────────────────────────
+  blocks:
+    # ── 矿石：主世界 ──
+    - COAL_ORE
+    - DEEPSLATE_COAL_ORE
+    - IRON_ORE
+    - DEEPSLATE_IRON_ORE
+    - COPPER_ORE
+    - DEEPSLATE_COPPER_ORE
+    - GOLD_ORE
+    - DEEPSLATE_GOLD_ORE
+    - REDSTONE_ORE
+    - DEEPSLATE_REDSTONE_ORE
+    - LAPIS_ORE
+    - DEEPSLATE_LAPIS_ORE
+    - DIAMOND_ORE
+    - DEEPSLATE_DIAMOND_ORE
+    - EMERALD_ORE
+    - DEEPSLATE_EMERALD_ORE
+    # ── 矿石：下界与末地 ──
+    - NETHER_GOLD_ORE
+    - NETHER_QUARTZ_ORE
+    - ANCIENT_DEBRIS
+    # ── 原木与菌柄（砍树连锁）──
+    - OAK_LOG
+    - SPRUCE_LOG
+    - BIRCH_LOG
+    - JUNGLE_LOG
+    - ACACIA_LOG
+    - DARK_OAK_LOG
+    - MANGROVE_LOG
+    - CHERRY_LOG
+    - PALE_OAK_LOG
+    - CRIMSON_STEM
+    - WARPED_STEM
+    - MUSHROOM_STEM
+    # 萤石不在矿石标签里，但挖萤石矿脉时连锁手感一致，单独列出。
+    - GLOWSTONE
+    # CE 自定义方块：改成你资源包里真实存在的 id（冒号不可省）。
+    # 装 CE 时这些行才会命中；未装 CE 时它们只是永远不会命中的字符串。
+    # - "betterend:amber_ore"
+    # - "myresources:deep_coal_ore"
+

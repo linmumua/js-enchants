@@ -1,0 +1,35 @@
+# 一个附魔定义。文件名可以随意，但 id 必须唯一。
+id: fireball
+display: "Fireball"
+max-level: 3
+rarity: rare
+
+# 可附着的物品类型。注意 26.x 没有 SWORD/AXE 这类通名，
+# 必须写具体材质，如 DIAMOND_SWORD。
+# 留空则表示不限制物品。
+items:
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+  - DIAMOND_AXE
+  - NETHERITE_AXE
+
+# 触发时机：ATTACK / DEFEND / MINE / KILL / RIGHT_CLICK / SHOOT
+trigger: ATTACK
+
+cooldown-ms: 3000
+
+# 触发概率：第 1 级为基础值，之后每级递增
+chance:
+  base: 0.15
+  per-level: 0.05
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 每级爆炸威力：I 级 1.5、II 级 3.0、III 级 4.5。框架还会按受控爆炸的上限再钳一次。
+  power-per-level: 1.5
+  # 触发时播放的音效；写不存在的名字只会静音，不会报错。
+  sound: ENTITY_GENERIC_EXPLODE
+
+# 对应 scripts/ 目录下的脚本
+script: fireball.js
+enabled: true

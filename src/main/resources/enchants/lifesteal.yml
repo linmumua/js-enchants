@@ -1,0 +1,38 @@
+# 吸血：攻击命中后按本次伤害的比例回复攻击者生命。
+# 文件名与 id 一致；同级 scripts/lifesteal.js 提供 onTrigger 入口。
+id: lifesteal
+display: "吸血"
+max-level: 3
+rarity: rare
+
+# 剑限定。26.x 没有 SWORD 这类通名，必须逐个写具体材质。
+# COPPER_SWORD 已核实存在于本项目编译所用的 paper-api 26.3（org.bukkit.Material）。
+items:
+  - WOODEN_SWORD
+  - STONE_SWORD
+  - COPPER_SWORD
+  - IRON_SWORD
+  - GOLDEN_SWORD
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+# 触发时机：ATTACK（玩家是攻击者，victim 是受击者）。
+trigger: ATTACK
+
+# 500ms 冷却，避免同一次连击里过密回血；概率与冷却都由框架判定，脚本不再自己掷。
+cooldown-ms: 500
+
+# 100% 触发：base 1 已是必然，per-level 保持 0。
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 每级回复比例（按本次伤害算）：I 级 20%、II 级 40%、III 级 60%。
+  # 等级超过列表长度时取最后一项，所以把 max-level 调大不会炸。
+  heal-ratios: [0.2, 0.4, 0.6]
+
+# 对应 scripts/ 目录下的脚本名。
+script: lifesteal.js
+enabled: true

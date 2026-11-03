@@ -1,0 +1,38 @@
+# 斩杀：概率直接处决血量低于 200 的非玩家生物。
+#
+# 概率说明：框架的概率是线性公式 base + per-level × (等级 - 1)，无法写出 5/8/12 这种非等差序列。
+# 这里取 base 0.05、per-level 0.035，实际为 5% / 8.5% / 12%——1 级与 3 级精确，2 级差 0.5%。
+id: execute
+display: "斩杀"
+max-level: 3
+rarity: epic
+
+items:
+  - WOODEN_SWORD
+  - STONE_SWORD
+  - COPPER_SWORD
+  - IRON_SWORD
+  - GOLDEN_SWORD
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+trigger: ATTACK
+
+# 无冷却：冷却会让一次连击里的第二次处决机会被吞掉。
+cooldown-ms: 0
+
+chance:
+  base: 0.05
+  per-level: 0.035
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # 只处决血量严格低于这个值的生物（200 是原版最高血量 Boss 的档位）。
+  max-health: 200
+  # 附加的溢出伤害：护甲、抗性、吸收都会吃掉一部分，只补当前血量不保证致死。
+  overkill-damage: 1000.0
+  # 是否把玩家一起纳入处决。默认关闭——玩家满血只有 20，放开会变成 PVP 纯抽签。
+  exclude-players: true
+
+script: execute.js
+enabled: true

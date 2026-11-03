@@ -1,0 +1,13 @@
+# Gradle / Kotlin 构建产物
+build/
+.gradle/
+.kotlin/
+
+# 工具与本地产物
+.narrafork/
+.idea/
+*.iml
+*.log
+
+# 本地覆盖
+local.properties

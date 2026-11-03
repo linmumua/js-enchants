@@ -1,0 +1,40 @@
+# 以太回声：演示「自定义事件 + PacketEvents 单播」两个新能力。
+#
+# trigger 不是内置短名，而是一个 Bukkit 事件类名——框架会反射注册它的 HandlerList，
+# 把事件交给脚本的 onTrigger。探测不到这个类时整批附魔不发布并报出文件名。
+#
+# PlayerToggleSneakEvent 每次切换潜行触发一次，频率可接受；
+# 像 PlayerMoveEvent 那种每 tick 的事件默认在 config.yml 的 events.blocked 里被禁。
+id: packet_notice
+display: "以太回声"
+max-level: 1
+rarity: common
+
+items:
+  - DIAMOND_SWORD
+  - NETHERITE_SWORD
+
+# 只读主手：切换潜行时手里那件带附魔的剑才会触发。
+slots:
+  - MAIN_HAND
+
+trigger: PlayerToggleSneakEvent
+
+# 500ms 冷却：潜行来回切也不会刷屏。
+cooldown-ms: 500
+
+chance:
+  base: 1.0
+  per-level: 0.0
+
+# 脚本读的参数，改完 /jse reload 即生效。
+options:
+  # ActionBar 上的文案。纯文本，不做 MiniMessage 解析。
+  message: "以太回声 · 已听见"
+  # 是否打印「事件已派发」「ActionBar 已提交」这两条一次性日志。
+  # 默认开着：发包失败和事件没触发在游戏里表现完全一样，没有这两行日志根本分不清。
+  # 确认链路通了以后可以关掉，减少控制台噪音。
+  verbose: true
+
+script: packet_notice.js
+enabled: true
