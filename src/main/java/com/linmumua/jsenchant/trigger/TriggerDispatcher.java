@@ -7,6 +7,7 @@ import com.linmumua.jsenchant.enchant.EnchantDefinition;
 import com.linmumua.jsenchant.enchant.EnchantRegistry;
 import com.linmumua.jsenchant.platform.RegionTasks;
 import com.linmumua.jsenchant.script.CompiledScript;
+import com.linmumua.jsenchant.script.CallbackBudget;
 import com.linmumua.jsenchant.script.ScriptRuntimeHost;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -75,6 +76,9 @@ public final class TriggerDispatcher implements Listener {
     private final JsEnchantPlugin services;
 
     private final TriggerPolicy policy = new TriggerPolicy();
+
+    /** 脚本延迟/周期回调的存活名额，跨触发共享：上限按「玩家 × 附魔」计。 */
+    private final CallbackBudget callbacks = new CallbackBudget();
 
     public TriggerDispatcher(final JsEnchantPlugin services) {
         this.services = services;
@@ -296,12 +300,15 @@ public final class TriggerDispatcher implements Listener {
      * {@link CompiledScript}，而不是只看附魔 id。
      */
     private ScriptHost hostFor(final CompiledScript script, final EnchantDefinition definition) {
+        // 传脚本 id 与注册表查找，而不是 script 本身：到期的回调要执行热重载后的新版本。
         return new ScriptRuntimeHost(
                 this.services.owner(),
                 definition.id(),
-                script,
+                script.id(),
+                this.services.getScriptRegistry()::get,
                 this.services.getEnginePool(),
                 this.services.tasks(),
+                this.callbacks,
                 this.services.getLogger()
         );
     }

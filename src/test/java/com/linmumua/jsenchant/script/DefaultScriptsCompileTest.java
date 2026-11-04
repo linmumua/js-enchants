@@ -46,11 +46,6 @@ class DefaultScriptsCompileTest {
             POOL.withContext(context -> {
                 final Scriptable scope = ScriptEnginePool.scopeOf(context, compiled, LOGGER);
 
-                // example.js 是给人看的写法示例，没有挂到任何附魔上，不要求有入口。
-                if ("example.js".equals(name)) {
-                    return Boolean.TRUE;
-                }
-
                 final Object trigger = scope.get("onTrigger", scope);
                 final Object hover = scope.get("onHover", scope);
 

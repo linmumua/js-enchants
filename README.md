@@ -57,9 +57,10 @@ src/main/resources/
 ctx.player() / ctx.victim() / ctx.block() / ctx.projectile() / ctx.level()
 ctx.optionNumber(key, fallback) / ctx.optionFlag(...) / ctx.optionText(...) / ctx.byLevel(key, fallback)
 
-// 延迟与周期（回调写成顶层具名函数）
+// 延迟与周期（回调写成顶层具名函数；到期时执行热重载后的最新版本）
+// 每名玩家每个附魔同时最多 16 条回调链，超出时返回 false
 ctx.delay(40, "explode")
-ctx.repeat(20, 5, "tick")
+ctx.repeat(20, 5, "tick")      // times<=0 表示一直重复，直到玩家下线
 
 // 效果
 ctx.potion(entity, "SLOWNESS", 60, 1) / ctx.ignite(entity, 60) / ctx.knockback(entity, 1.2)
@@ -76,6 +77,8 @@ ctx.actionBar(text) / ctx.title(main, sub)
 ctx.setBlock(dx, dy, dz, material) / ctx.breakBlock(dx, dy, dz)
 ```
 
+完整写法示例见 `scripts/example.js`（options 取值、持久计数、延迟回调）。
+
 ## 许可
 
-未声明。
+[MIT](LICENSE)

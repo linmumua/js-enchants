@@ -38,6 +38,8 @@ class ScriptApiEffectsTest {
 
     private static final Logger LOGGER = Logger.getLogger("JsEnchantsTest");
 
+    private static final java.util.UUID ANCHOR_ID = java.util.UUID.fromString("00000000-0000-0000-0000-0000000000d4");
+
     private static ScriptApi apiWith(final Map<String, Object> options, final int level) {
         return ScriptApi.generic(null, null, null, null, level, "vein_miner").withOptions(options);
     }
@@ -214,6 +216,8 @@ class ScriptApiEffectsTest {
                     case "equals" -> proxy == args[0];
                     case "hashCode" -> System.identityHashCode(proxy);
                     case "toString" -> "FakeAnchor";
+                    // 存活名额按 UUID 计数；UUID 不可变，跨区读取也安全，是唯一允许读的属性。
+                    case "getUniqueId" -> ANCHOR_ID;
                     default -> throw new UnsupportedOperationException(
                             "调度只登记锚点，不该读实体状态，被调用的方法: " + method.getName());
                 }
